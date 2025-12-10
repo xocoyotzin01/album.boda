@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   
   <style>
-    /* Estilos personalizados del diseño original */
+    /* Estilos personalizados */
     body { box-sizing: border-box; }
     @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Montserrat:wght@300;400;500&display=swap');
     
@@ -16,7 +16,7 @@
 
     html, body, .app-wrapper { height: 100%; width: 100%; }
 
-    /* Efectos visuales */
+    /* Fondo decorativo */
     .photo-vertical {
       background: linear-gradient(180deg, #f8f6f4 0%, #ede8e3 50%, #e8e0d8 100%);
       position: relative; overflow: hidden;
@@ -27,17 +27,14 @@
       opacity: 0.95;
     }
     
+    /* Zona de carga */
     .upload-zone {
       border: 2px dashed #e8d7b8; transition: all 0.3s ease;
     }
     .upload-zone:hover { border-color: #c9a961; background-color: #faf8f6; }
     
-    /* Animaciones de carga */
-    @keyframes pulse-gold {
-      0%, 100% { opacity: 1; }
-      50% { opacity: .5; }
-    }
-    .loading-pulse { animation: pulse-gold 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    /* Animación suave */
+    html { scroll-behavior: smooth; }
   </style>
  </head>
  
@@ -63,20 +60,26 @@
        </div>
 
        <article class="text-center md:text-left space-y-4">
-        <h1 class="font-serif-elegant text-2xl md:text-3xl text-[#c9a961] font-light">Mensaje de los novios</h1>
+        <h1 class="font-serif-elegant text-2xl md:text-3xl text-[#c9a961] font-light">Bienvenidos</h1>
         <p class="font-sans-clean text-sm md:text-base text-gray-700 leading-relaxed font-light">
-            Gracias por acompañarnos. Queremos ver la boda a través de sus ojos. Por favor, suban aquí todas las fotos y videos que tomen hoy.
+            Ayúdennos a capturar cada momento mágico de hoy. Pueden subir sus fotos o ver las que otros invitados están compartiendo.
         </p>
        </article>
       </div>
 
-      <div class="grid grid-cols-1 gap-4 mt-8">
-        <button id="btn-go-upload" type="button" class="flex flex-col items-center justify-center p-6 bg-[#c9a961] text-white rounded-lg shadow-lg hover:bg-[#b8985a] transition-all group cursor-pointer">
-            <svg class="w-8 h-8 mb-3 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M7 18a4 4 0 01-4-4 4 4 0 014-4h.09A5.5 5.5 0 0117.5 8a3.5 3.5 0 013.5 3.5 3.5 3.5 0 01-3.5 3.5H7z" stroke-linejoin="round" /> 
-                <path d="M12 12v6m0-6l-2 2m2-2l2 2" stroke-linecap="round" stroke-linejoin="round" />
+      <div class="grid grid-cols-2 gap-4 mt-8">
+        <button id="btn-go-upload" type="button" class="flex flex-col items-center justify-center p-4 bg-[#c9a961] text-white rounded-lg shadow-lg hover:bg-[#b8985a] transition-all group cursor-pointer">
+            <svg class="w-6 h-6 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span class="font-sans-clean text-sm font-light tracking-wide">Ir al Álbum y Subir Fotos</span> 
+            <span class="font-sans-clean text-sm font-bold tracking-wide">SUBIR FOTO</span> 
+        </button> 
+
+        <button id="btn-go-album" type="button" class="flex flex-col items-center justify-center p-4 bg-white border-2 border-[#c9a961] text-[#c9a961] rounded-lg shadow-md hover:bg-gray-50 transition-all group cursor-pointer">
+            <svg class="w-6 h-6 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="font-sans-clean text-sm font-bold tracking-wide">VER ÁLBUM</span> 
         </button> 
       </div>
      </div>
@@ -86,57 +89,48 @@
      <div class="max-w-7xl mx-auto px-6 py-16 md:py-20">
       
       <header class="text-center mb-12 space-y-3 relative">
-       <button id="btn-back-home" class="absolute left-0 top-0 text-[#c9a961] hover:text-[#b8985a]">
-         ← Volver
+       <button id="btn-back-home" class="absolute left-0 top-0 text-[#c9a961] hover:text-[#b8985a] font-bold text-sm">
+         ← INICIO
        </button>
        <h1 class="font-serif-elegant text-3xl md:text-4xl lg:text-5xl text-[#c9a961] font-light">Galería en Vivo</h1>
-       <p class="font-sans-clean text-base md:text-lg text-gray-600 font-light">Comparte tus recuerdos ahora mismo</p>
       </header>
 
       <div class="flex flex-col gap-8">
-       
        <section class="flex-1 space-y-8 max-w-3xl mx-auto w-full">
         
         <input type="file" id="real-file-input" class="hidden" accept="image/*">
 
-        <div class="flex justify-center">
-            <button id="btn-upload-trigger" type="button" class="inline-flex items-center gap-3 px-8 py-3 bg-[#c9a961] text-white rounded-full font-sans-clean text-sm font-light tracking-wide shadow-lg hover:bg-[#b8985a] transition-all cursor-pointer">
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M12 5v14M5 12h14" stroke-linecap="round" />
-                </svg>
-                <span>Subir Nueva Foto</span> 
-            </button>
+        <div id="upload-section-container">
+            <div class="flex justify-center mb-4">
+                <button id="btn-upload-trigger" type="button" class="inline-flex items-center gap-3 px-8 py-3 bg-[#c9a961] text-white rounded-full font-sans-clean text-sm font-light tracking-wide shadow-lg hover:bg-[#b8985a] transition-all cursor-pointer">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M12 5v14M5 12h14" stroke-linecap="round" />
+                    </svg>
+                    <span>Seleccionar archivo</span> 
+                </button>
+            </div>
+
+            <div id="drop-zone-trigger" class="upload-zone rounded-2xl bg-[#faf8f6] px-8 py-10 text-center cursor-pointer">
+             <div class="flex flex-col items-center space-y-2">
+              <p class="font-sans-clean text-sm text-gray-500 font-light">Toca el botón o arrastra aquí</p>
+             </div>
+            </div>
+
+            <div id="upload-status-container" class="hidden text-center mt-4">
+                <p class="text-[#c9a961] font-serif-elegant text-xl animate-pulse">Subiendo...</p>
+            </div>
         </div>
 
-        <div id="drop-zone-trigger" class="upload-zone rounded-2xl bg-[#faf8f6] px-8 py-12 text-center cursor-pointer">
-         <div class="flex flex-col items-center space-y-4">
-          <div class="w-16 h-16 rounded-full bg-white border border-gray-200 flex items-center justify-center">
-           <svg class="w-8 h-8 text-[#c9a961]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M7 18a4 4 0 01-4-4 4 4 0 014-4h.09A5.5 5.5 0 0117.5 8a3.5 3.5 0 013.5 3.5 3.5 3.5 0 01-3.5 3.5H7z" stroke-linejoin="round" /> 
-            <path d="M12 12v6m0-6l-2 2m2-2l2 2" stroke-linecap="round" stroke-linejoin="round" />
-           </svg>
-          </div>
-          <div>
-           <p class="font-sans-clean text-base text-gray-800 font-light mb-1">Toca aquí para seleccionar fotos</p>
-           <p class="font-sans-clean text-sm text-gray-500 font-light">JPG, PNG, HEIC — Se verán al instante abajo</p>
-          </div>
-         </div>
-        </div>
-
-        <div id="upload-status-container" class="hidden text-center">
-            <p class="text-[#c9a961] font-serif-elegant text-xl animate-pulse">Subiendo tu recuerdo...</p>
-        </div>
-
-        <div class="space-y-6 pt-8 border-t border-gray-100">
-         <h3 class="font-serif-elegant text-2xl text-gray-800 text-center">Recuerdos compartidos</h3>
+        <div id="gallery-section-target" class="space-y-6 pt-12 border-t border-gray-100">
+         <h3 class="font-serif-elegant text-2xl text-gray-800 text-center">Todas las fotos</h3>
          
          <div id="firebase-gallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
              <div class="col-span-full text-center py-10 text-gray-400 font-light">
-                 Cargando galería...
+                 Cargando recuerdos...
              </div>
          </div>
-
         </div>
+
        </section>
       </div>
      </div>
@@ -149,12 +143,11 @@
   </div>
 
   <script type="module">
-    // 1. IMPORTAR FIREBASE
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
     import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-    // 2. CONFIGURACIÓN (Tus claves reales)
+    // TUS CLAVES (No borrar)
     const firebaseConfig = {
         apiKey: "AIzaSyDZq3NMlUtJrIaSVmoA7CvVvOyuHtsUt9Y",
         authDomain: "album-2-9e7e5.firebaseapp.com",
@@ -164,12 +157,11 @@
         appId: "1:490580306906:web:d8abad10c419be1730eee3"
     };
 
-    // 3. INICIALIZAR
     const app = initializeApp(firebaseConfig);
     const storage = getStorage(app);
     const db = getFirestore(app);
 
-    // 4. REFERENCIAS DOM
+    // Referencias
     const realInput = document.getElementById('real-file-input');
     const uploadTriggerBtn = document.getElementById('btn-upload-trigger');
     const dropZone = document.getElementById('drop-zone-trigger');
@@ -177,99 +169,33 @@
     const toast = document.getElementById('toast');
     const statusContainer = document.getElementById('upload-status-container');
 
-    // Funciones de utilidad UI
+    // Navegación
+    const pageHome = document.getElementById('page-home');
+    const pageUpload = document.getElementById('page-upload');
+    const btnGoUpload = document.getElementById('btn-go-upload');
+    const btnGoAlbum = document.getElementById('btn-go-album'); // Nuevo botón
+    const btnBack = document.getElementById('btn-back-home');
+    const galleryTarget = document.getElementById('gallery-section-target');
+
     function showToast(msg) {
         toast.textContent = msg;
         toast.classList.remove('hidden');
         setTimeout(() => toast.classList.add('hidden'), 3000);
     }
 
-    // A. CONECTAR BOTONES AL INPUT REAL
-    // Cuando tocan el botón bonito o la zona de carga, activamos el input feo (oculto)
-    uploadTriggerBtn.addEventListener('click', () => realInput.click());
-    dropZone.addEventListener('click', () => realInput.click());
-
-    // B. SUBIDA DE ARCHIVOS
-    realInput.addEventListener('change', async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        // Mostrar estado cargando
-        uploadTriggerBtn.disabled = true;
-        uploadTriggerBtn.style.opacity = "0.5";
-        statusContainer.classList.remove('hidden');
-
-        try {
-            // 1. Subir a Storage
-            const fileName = `boda_laura_x/${Date.now()}_${file.name}`;
-            const storageRef = ref(storage, fileName);
-            await uploadBytes(storageRef, file);
-            
-            // 2. Obtener URL pública
-            const url = await getDownloadURL(storageRef);
-
-            // 3. Guardar en Base de Datos
-            await addDoc(collection(db, "album"), {
-                url_imagen: url,
-                fecha: serverTimestamp(),
-                usuario: "invitado" 
-            });
-
-            showToast("¡Foto subida con éxito!");
-
-        } catch (error) {
-            console.error(error);
-            showToast("Error al subir la foto :(");
-        } finally {
-            // Restaurar estado
-            uploadTriggerBtn.disabled = false;
-            uploadTriggerBtn.style.opacity = "1";
-            statusContainer.classList.add('hidden');
-            realInput.value = ''; // Limpiar para poder subir la misma si se quiere
-        }
-    });
-
-    // C. LEER FOTOS EN TIEMPO REAL (Renderizado)
-    const q = query(collection(db, "album"), orderBy("fecha", "desc"));
-
-    onSnapshot(q, (snapshot) => {
-        // Limpiar galería actual
-        galleryContainer.innerHTML = '';
-
-        if(snapshot.empty){
-            galleryContainer.innerHTML = '<p class="col-span-full text-center text-gray-400">Sé el primero en subir una foto.</p>';
-            return;
-        }
-
-        snapshot.forEach((doc) => {
-            const data = doc.data();
-            if(data.url_imagen) {
-                // Crear elemento HTML con las clases de Tailwind del diseño original
-                const div = document.createElement('div');
-                // Estilo "Mosaico" elegante
-                div.className = "aspect-square rounded-lg shadow-sm overflow-hidden relative group bg-gray-100";
-                
-                div.innerHTML = `
-                    <img src="${data.url_imagen}" 
-                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-                         loading="lazy" 
-                         alt="Recuerdo de boda">
-                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all"></div>
-                `;
-                galleryContainer.appendChild(div);
-            }
-        });
-    });
-
-    // D. NAVEGACIÓN SIMPLE (SPA)
-    const pageHome = document.getElementById('page-home');
-    const pageUpload = document.getElementById('page-upload');
-    const btnGoUpload = document.getElementById('btn-go-upload');
-    const btnBack = document.getElementById('btn-back-home');
-
+    // -- ACCIÓN BOTÓN 1: SUBIR FOTO --
     btnGoUpload.addEventListener('click', () => {
         pageHome.classList.add('hidden');
         pageUpload.classList.remove('hidden');
+        window.scrollTo(0, 0); // Ir arriba (zona de carga)
+    });
+
+    // -- ACCIÓN BOTÓN 2: VER ÁLBUM --
+    btnGoAlbum.addEventListener('click', () => {
+        pageHome.classList.add('hidden');
+        pageUpload.classList.remove('hidden');
+        // Scroll suave hacia la galería
+        galleryTarget.scrollIntoView({ behavior: 'smooth' });
     });
 
     btnBack.addEventListener('click', () => {
@@ -277,6 +203,60 @@
         pageHome.classList.remove('hidden');
     });
 
+    // Subida de archivos
+    uploadTriggerBtn.addEventListener('click', () => realInput.click());
+    dropZone.addEventListener('click', () => realInput.click());
+
+    realInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        uploadTriggerBtn.disabled = true;
+        uploadTriggerBtn.style.opacity = "0.5";
+        statusContainer.classList.remove('hidden');
+
+        try {
+            const fileName = `boda_laura_x/${Date.now()}_${file.name}`;
+            const storageRef = ref(storage, fileName);
+            await uploadBytes(storageRef, file);
+            const url = await getDownloadURL(storageRef);
+
+            await addDoc(collection(db, "album"), {
+                url_imagen: url,
+                fecha: serverTimestamp(),
+                usuario: "invitado" 
+            });
+
+            showToast("¡Foto subida con éxito!");
+        } catch (error) {
+            console.error(error);
+            showToast("Error al subir");
+        } finally {
+            uploadTriggerBtn.disabled = false;
+            uploadTriggerBtn.style.opacity = "1";
+            statusContainer.classList.add('hidden');
+            realInput.value = ''; 
+        }
+    });
+
+    // Leer fotos
+    const q = query(collection(db, "album"), orderBy("fecha", "desc"));
+    onSnapshot(q, (snapshot) => {
+        galleryContainer.innerHTML = '';
+        if(snapshot.empty){
+            galleryContainer.innerHTML = '<p class="col-span-full text-center text-gray-400">Sé el primero en subir una foto.</p>';
+            return;
+        }
+        snapshot.forEach((doc) => {
+            const data = doc.data();
+            if(data.url_imagen) {
+                const div = document.createElement('div');
+                div.className = "aspect-square rounded-lg shadow-sm overflow-hidden relative group bg-gray-100";
+                div.innerHTML = `<img src="${data.url_imagen}" class="w-full h-full object-cover" loading="lazy">`;
+                galleryContainer.appendChild(div);
+            }
+        });
+    });
   </script>
  </body>
 </html>
