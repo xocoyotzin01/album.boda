@@ -183,7 +183,7 @@
 
    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 bg-[#c9a961] text-white rounded-full shadow-xl hidden font-sans-clean text-sm font-light z-50">Acción completada</div>
   </div>
-
+<script type="module">
  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
     import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
@@ -490,7 +490,6 @@
             }
         );
     });
-  </script>
   </script>
  </body>
 </html>
