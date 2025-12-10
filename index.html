@@ -215,12 +215,25 @@
     uploadTriggerBtn.addEventListener('click', () => realInput.click());
     dropZone.addEventListener('click', () => realInput.click());
 
-    // --- NUEVA LÓGICA DE SUBIDA CON BARRA ---
-    realInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+ 
+    // B. SUBIDA DE ARCHIVOS
+        realInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
 
-        // 1. Preparamos UI
+        // --- NUEVO BLOQUE DE SEGURIDAD ---
+        const limiteMB = 50; // Límite de 50 Megabytes
+        const maxBytes = limiteMB * 1024 * 1024;
+
+        if (file.size > maxBytes) {
+            // Si pesa más de 50MB, soltamos un error y cancelamos
+            alert(`⚠️ El video es muy pesado (Máx ${limiteMB}MB).\nIntenta con un video más corto.`);
+            realInput.value = ''; // Limpiamos
+            return; // Detenemos todo aquí
+        }
+        // ---------------------------------
+
+           // 1. Preparamos UI
         uploadTriggerBtn.disabled = true;
         uploadTriggerBtn.style.opacity = "0.5";
         statusContainer.classList.remove('hidden'); // Mostrar barra
