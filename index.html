@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   
   <style>
-    /* Estilos personalizados */
+    /* --- ESTILOS GENERALES Y FIREBASE --- */
     body { box-sizing: border-box; }
     @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Montserrat:wght@300;400;500&display=swap');
     
@@ -16,7 +16,7 @@
 
     html, body, .app-wrapper { height: 100%; width: 100%; }
 
-    /* Fondo decorativo */
+    /* Fondo decorativo (Home) */
     .photo-vertical {
       background: linear-gradient(180deg, #f8f6f4 0%, #ede8e3 50%, #e8e0d8 100%);
       position: relative; overflow: hidden;
@@ -32,6 +32,73 @@
       border: 2px dashed #e8d7b8; transition: all 0.3s ease;
     }
     .upload-zone:hover { border-color: #c9a961; background-color: #faf8f6; }
+
+    /* --- ESTILOS DEL ÁLBUM DIGITAL (NUEVOS) --- */
+    
+    /* Álbum digital estilo editorial */
+    .album-page {
+      background: linear-gradient(135deg, #f5f1ed 0%, #ebe5df 100%);
+      position: relative;
+      overflow: hidden;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .album-page.page-exit {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+
+    .album-page.page-enter {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+
+    .album-page.page-active {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    /* Fotografías del álbum (Placeholder estilos) */
+    .album-photo {
+      background: linear-gradient(135deg, #f8f6f4 0%, #ede8e3 50%, #e8e0d8 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .album-photo::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: 
+        radial-gradient(circle at 30% 20%, rgba(255,255,255,0.85) 0%, transparent 50%),
+        radial-gradient(circle at 70% 80%, rgba(255,255,255,0.65) 0%, transparent 45%);
+      opacity: 0.9;
+    }
+
+    /* Líneas decorativas */
+    .decorative-line {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: #c9a961;
+      opacity: 0.4;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    /* Navegación del álbum (Flechas) */
+    .album-nav-arrow {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
+      opacity: 0.6;
+      cursor: pointer;
+    }
+
+    .album-nav-arrow:hover {
+      opacity: 1;
+      background: rgba(255, 255, 255, 0.9);
+    }
     
     html { scroll-behavior: smooth; }
   </style>
@@ -42,13 +109,13 @@
    
    <main class="flex-1">
     
-    <section id="page-home" class="bg-white h-screen flex flex-col md:flex-row">
-     <div class="w-full md:w-1/2 h-1/2 md:h-full photo-vertical flex items-center justify-center">
+    <section id="page-home" class="bg-white min-h-screen flex flex-col md:flex-row">
+     <div class="w-full md:w-1/2 h-64 md:h-auto photo-vertical flex items-center justify-center">
         <span class="font-serif-elegant text-4xl text-gray-400 opacity-30">L & X</span>
      </div>
 
-     <div class="w-full md:w-1/2 h-1/2 md:h-full flex flex-col justify-between p-8 md:p-16 lg:p-20">
-      <div class="flex-1 flex flex-col justify-center space-y-8">
+     <div class="w-full md:w-1/2 flex flex-col justify-center p-8 md:p-16 lg:p-20">
+      <div class="flex-1 flex flex-col justify-center space-y-6">
        <div class="text-center md:text-left">
         <span class="font-serif-elegant text-3xl md:text-4xl text-[#c9a961] font-light tracking-widest">L + X</span>
        </div>
@@ -61,25 +128,34 @@
        <article class="text-center md:text-left space-y-4">
         <h1 class="font-serif-elegant text-2xl md:text-3xl text-[#c9a961] font-light">Bienvenidos</h1>
         <p class="font-sans-clean text-sm md:text-base text-gray-700 leading-relaxed font-light">
-            Ayúdennos a capturar cada momento mágico de hoy. Pueden subir sus fotos o ver las que otros invitados están compartiendo.
+            Ayúdennos a capturar cada momento mágico. Suban sus fotos aquí para verlas en vivo, y los videos compártanlos en nuestro drive.
         </p>
        </article>
       </div>
 
-      <div class="grid grid-cols-2 gap-4 mt-8">
-        <button id="btn-go-upload" type="button" class="flex flex-col items-center justify-center p-4 bg-[#c9a961] text-white rounded-lg shadow-lg hover:bg-[#b8985a] transition-all group cursor-pointer">
-            <svg class="w-6 h-6 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round"/>
+      <div class="flex flex-col gap-3 mt-8">
+        
+        <button id="btn-go-upload" type="button" class="w-full flex items-center justify-center gap-3 p-4 bg-[#c9a961] text-white rounded-lg shadow-lg hover:bg-[#b8985a] transition-all group cursor-pointer">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             <span class="font-sans-clean text-sm font-bold tracking-wide">SUBIR FOTO</span> 
         </button> 
 
-        <button id="btn-go-album" type="button" class="flex flex-col items-center justify-center p-4 bg-white border-2 border-[#c9a961] text-[#c9a961] rounded-lg shadow-md hover:bg-gray-50 transition-all group cursor-pointer">
-            <svg class="w-6 h-6 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"/>
+        <button id="btn-go-album" type="button" class="w-full flex items-center justify-center gap-3 p-4 bg-white border border-[#c9a961] text-[#c9a961] rounded-lg shadow-sm hover:bg-gray-50 transition-all group cursor-pointer">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span class="font-sans-clean text-sm font-bold tracking-wide">VER ÁLBUM</span> 
-        </button> 
+            <span class="font-sans-clean text-sm font-bold tracking-wide">VER ÁLBUM DIGITAL</span> 
+        </button>
+
+        <a id="btn-video-link" href="https://photos.app.goo.gl/TU_ENLACE_AQUI" target="_blank" class="w-full flex items-center justify-center gap-3 p-4 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-all cursor-pointer no-underline">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="font-sans-clean text-sm font-bold tracking-wide">SUBIR VIDEO (Drive/Fotos)</span> 
+        </a>
+
       </div>
      </div>
     </section>
@@ -91,27 +167,27 @@
        <button id="btn-back-home" class="absolute left-0 top-0 text-[#c9a961] hover:text-[#b8985a] font-bold text-sm">
          ← INICIO
        </button>
-       <h1 class="font-serif-elegant text-3xl md:text-4xl lg:text-5xl text-[#c9a961] font-light">Galería en Vivo</h1>
+       <h1 class="font-serif-elegant text-3xl md:text-4xl lg:text-5xl text-[#c9a961] font-light">Subir Recuerdos</h1>
       </header>
 
       <div class="flex flex-col gap-8">
        <section class="flex-1 space-y-8 max-w-3xl mx-auto w-full">
         
-       <input type="file" id="real-file-input" class="hidden" accept="image/png, image/jpeg, image/jpg">
-        
+        <input type="file" id="real-file-input" class="hidden" accept="image/png, image/jpeg, image/jpg, image/heic">
+
         <div id="upload-section-container">
             <div class="flex justify-center mb-4">
                 <button id="btn-upload-trigger" type="button" class="inline-flex items-center gap-3 px-8 py-3 bg-[#c9a961] text-white rounded-full font-sans-clean text-sm font-light tracking-wide shadow-lg hover:bg-[#b8985a] transition-all cursor-pointer">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                         <path d="M12 5v14M5 12h14" stroke-linecap="round" />
                     </svg>
-                    <span>Seleccionar archivo</span> 
+                    <span>Seleccionar Foto</span> 
                 </button>
             </div>
 
             <div id="drop-zone-trigger" class="upload-zone rounded-2xl bg-[#faf8f6] px-8 py-10 text-center cursor-pointer">
              <div class="flex flex-col items-center space-y-2">
-              <p class="font-sans-clean text-sm text-gray-500 font-light">Toca el botón o arrastra aquí</p>
+              <p class="font-sans-clean text-sm text-gray-500 font-light">Solo fotos (JPG, PNG)</p>
              </div>
             </div>
 
@@ -124,14 +200,13 @@
                   <div id="progress-bar-fill" class="bg-[#c9a961] h-2.5 rounded-full transition-all duration-150" style="width: 0%"></div>
                 </div>
             </div>
-
         </div>
 
         <div id="gallery-section-target" class="space-y-6 pt-12 border-t border-gray-100">
-         <h3 class="font-serif-elegant text-2xl text-gray-800 text-center">Todas las fotos</h3>
+         <h3 class="font-serif-elegant text-2xl text-gray-800 text-center">Fotos Subidas</h3>
          <div id="firebase-gallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
              <div class="col-span-full text-center py-10 text-gray-400 font-light">
-                 Cargando recuerdos...
+                 Cargando...
              </div>
          </div>
         </div>
@@ -140,6 +215,96 @@
       </div>
      </div>
     </section>
+
+    <section id="page-album" class="hidden bg-[#ebe5df] min-h-screen relative">
+        <div class="max-w-7xl mx-auto px-6 py-16 md:py-20">
+         <button id="btn-exit-album" class="absolute left-6 top-6 z-50 px-4 py-2 bg-white/80 backdrop-blur rounded-full text-[#c9a961] hover:bg-white shadow-sm font-sans-clean text-sm font-bold">
+            ← Volver al Inicio
+         </button>
+
+         <div class="relative bg-white shadow-2xl rounded-sm overflow-hidden" style="aspect-ratio: 16/10; max-height: 85vh;">
+          <div id="album-container" class="w-full h-full relative">
+           <div class="album-page page-active absolute inset-0 flex flex-col items-center justify-center p-12 text-center" data-page="1">
+            <h2 class="font-serif-elegant text-5xl md:text-7xl text-[#c9a961] font-light mb-6 tracking-wide">una mirada,<br>
+             mil recuerdos.</h2>
+            <p class="font-sans-clean text-sm tracking-widest text-gray-500 uppercase">Buenos Aires, 2024</p>
+            <div class="decorative-line mt-12">
+             Siempre cerca . Siempre cerca . Siempre cerca . Siempre cerca . Siempre cerca . Siempre cerca . Siempre cerca . Siempre cerca
+            </div>
+           </div>
+           <div class="album-page hidden absolute inset-0 p-8" data-page="2">
+            <div class="album-photo w-full h-full rounded-sm"></div>
+           </div>
+           <div class="album-page hidden absolute inset-0 p-12 flex gap-6" data-page="3">
+            <div class="w-2/3 h-full album-photo rounded-sm"></div>
+            <div class="w-1/3 flex flex-col gap-6">
+             <div class="flex-1 album-photo rounded-sm"></div>
+             <div class="flex-1"></div>
+            </div>
+           </div>
+           <div class="album-page hidden absolute inset-0 flex flex-col items-start justify-center p-16" data-page="4">
+            <div class="decorative-line mb-8">
+             felices . felices . felices . felices . felices . felices . felices . felices . felices . felices . felices
+            </div>
+            <h2 class="font-serif-elegant text-6xl md:text-8xl text-[#c9a961] font-light mb-4">Momentos<br>
+             únicos</h2>
+            <p class="font-sans-clean text-xs tracking-widest text-gray-500 uppercase mt-8">Uruguay, Mayo 2025</p>
+           </div>
+           <div class="album-page hidden absolute inset-0 p-12 flex items-center justify-end" data-page="5">
+            <div class="w-3/5 h-4/5 album-photo rounded-sm"></div>
+           </div>
+           <div class="album-page hidden absolute inset-0 p-16 flex flex-col justify-between" data-page="6">
+            <div class="w-2/5 h-2/5 album-photo rounded-sm"></div>
+            <div class="w-2/5 h-2/5 album-photo rounded-sm self-end"></div>
+           </div>
+           <div class="album-page hidden absolute inset-0 flex flex-col items-center justify-center p-16 text-center" data-page="7">
+            <h2 class="font-serif-elegant text-6xl md:text-8xl text-[#c9a961] font-light mb-6">Celebrando<br>
+             la vida</h2>
+            <div class="decorative-line mt-8">
+             Juntos . Juntos . Juntos . Juntos . Juntos . Juntos . Juntos . Juntos . Juntos . Juntos . Juntos . Juntos
+            </div>
+            <p class="font-sans-clean text-xs tracking-widest text-gray-500 uppercase mt-12">Navidad 2023</p>
+           </div>
+           <div class="album-page hidden absolute inset-0 p-10 flex gap-8 items-end" data-page="8">
+            <div class="w-3/4 h-full album-photo rounded-sm"></div>
+            <div class="w-1/4 h-2/5 album-photo rounded-sm"></div>
+           </div>
+           <div class="album-page hidden absolute inset-0 flex flex-col items-start justify-center p-16" data-page="9">
+            <h2 class="font-serif-elegant text-7xl md:text-9xl text-[#c9a961] font-light mb-4 leading-tight">mil<br>
+             recuerdos</h2>
+            <p class="font-sans-clean text-xs tracking-widest text-gray-500 uppercase mt-8">Agosto 2025</p>
+            <div class="decorative-line mt-12">
+             Siempre cerca . Siempre cerca . Siempre cerca . Siempre cerca . Siempre cerca . Siempre cerca . Siempre cerca
+            </div>
+           </div>
+           <div class="album-page hidden absolute inset-0 p-12 grid grid-cols-2 gap-6" data-page="10">
+            <div class="album-photo rounded-sm row-span-2"></div>
+            <div class="album-photo rounded-sm"></div>
+            <div class="album-photo rounded-sm"></div>
+           </div>
+           <div class="album-page hidden absolute inset-0 p-8" data-page="11">
+            <div class="album-photo w-full h-full rounded-sm"></div>
+           </div>
+           <div class="album-page hidden absolute inset-0 flex flex-col items-center justify-center p-16 text-center" data-page="12">
+            <div class="decorative-line mb-12">
+             felices . felices . felices . felices . felices . felices . felices . felices . felices . felices . felices
+            </div>
+            <h2 class="font-serif-elegant text-4xl md:text-5xl text-[#c9a961] font-light mb-8">• felices por siempre •</h2>
+            <p class="font-sans-clean text-base md:text-lg text-gray-600 font-light max-w-md leading-relaxed">Gracias por ser parte de esta historia</p>
+           </div>
+          </div>
+          <button id="album-next" type="button" class="focus-ring album-nav-arrow absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center shadow-lg" aria-label="Siguiente página">
+           <svg class="w-6 h-6 text-[#c9a961]" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button> 
+          <button id="album-prev" type="button" class="focus-ring album-nav-arrow absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center shadow-lg hidden" aria-label="Página anterior">
+           <svg class="w-6 h-6 text-[#c9a961]" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button> 
+          <div class="absolute bottom-6 left-1/2 -translate-x-1/2 font-sans-clean text-xs text-gray-500 bg-white/80 px-4 py-2 rounded-full"><span id="current-page">1</span> / <span id="total-pages">12</span>
+          </div>
+         </div>
+        </div>
+       </section>
+
    </main>
 
    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 bg-[#c9a961] text-white rounded-full shadow-xl hidden font-sans-clean text-sm font-light z-50">
@@ -148,12 +313,11 @@
   </div>
 
   <script type="module">
-    // 1. IMPORTAMOS 'uploadBytesResumable' EN LUGAR DE 'uploadBytes'
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
     import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-    // TUS CLAVES (No borrar)
+    // TUS CLAVES
     const firebaseConfig = {
         apiKey: "AIzaSyDZq3NMlUtJrIaSVmoA7CvVvOyuHtsUt9Y",
         authDomain: "album-2-9e7e5.firebaseapp.com",
@@ -167,25 +331,26 @@
     const storage = getStorage(app);
     const db = getFirestore(app);
 
-    // Referencias
+    // Referencias DOM Generales
+    const toast = document.getElementById('toast');
+    const pageHome = document.getElementById('page-home');
+    const pageUpload = document.getElementById('page-upload');
+    const pageAlbum = document.getElementById('page-album'); // Nueva Referencia
+
+    // Botones
+    const btnGoUpload = document.getElementById('btn-go-upload');
+    const btnGoAlbum = document.getElementById('btn-go-album');
+    const btnBackHome = document.getElementById('btn-back-home'); // Desde Upload
+    const btnExitAlbum = document.getElementById('btn-exit-album'); // Desde Álbum Digital
+
+    // Referencias Upload
     const realInput = document.getElementById('real-file-input');
     const uploadTriggerBtn = document.getElementById('btn-upload-trigger');
     const dropZone = document.getElementById('drop-zone-trigger');
     const galleryContainer = document.getElementById('firebase-gallery');
-    const toast = document.getElementById('toast');
-    
-    // Referencias para la barra
     const statusContainer = document.getElementById('upload-status-container');
     const progressBarFill = document.getElementById('progress-bar-fill');
     const progressText = document.getElementById('progress-text');
-
-    // Navegación
-    const pageHome = document.getElementById('page-home');
-    const pageUpload = document.getElementById('page-upload');
-    const btnGoUpload = document.getElementById('btn-go-upload');
-    const btnGoAlbum = document.getElementById('btn-go-album');
-    const btnBack = document.getElementById('btn-back-home');
-    const galleryTarget = document.getElementById('gallery-section-target');
 
     function showToast(msg) {
         toast.textContent = msg;
@@ -193,72 +358,68 @@
         setTimeout(() => toast.classList.add('hidden'), 3000);
     }
 
-    // Botones Navegación
+    // --- NAVEGACIÓN ENTRE SECCIONES ---
+
+    // 1. Ir a Subir Foto
     btnGoUpload.addEventListener('click', () => {
         pageHome.classList.add('hidden');
         pageUpload.classList.remove('hidden');
+        pageAlbum.classList.add('hidden');
         window.scrollTo(0, 0); 
     });
 
+    // 2. Ir al Álbum Digital (El nuevo código)
     btnGoAlbum.addEventListener('click', () => {
         pageHome.classList.add('hidden');
-        pageUpload.classList.remove('hidden');
-        galleryTarget.scrollIntoView({ behavior: 'smooth' });
+        pageUpload.classList.add('hidden');
+        pageAlbum.classList.remove('hidden'); // Mostramos la sección nueva
+        window.scrollTo(0, 0);
     });
 
-    btnBack.addEventListener('click', () => {
+    // 3. Volver desde Upload
+    btnBackHome.addEventListener('click', () => {
         pageUpload.classList.add('hidden');
         pageHome.classList.remove('hidden');
     });
 
-    // Inputs
+    // 4. Volver desde Álbum Digital
+    btnExitAlbum.addEventListener('click', () => {
+        pageAlbum.classList.add('hidden');
+        pageHome.classList.remove('hidden');
+    });
+
+
+    // --- LÓGICA DE SUBIDA (FIREBASE) ---
     uploadTriggerBtn.addEventListener('click', () => realInput.click());
     dropZone.addEventListener('click', () => realInput.click());
 
- 
-    // B. SUBIDA DE ARCHIVOS
-        realInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+    realInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
 
-        // --- NUEVO BLOQUE DE SEGURIDAD ---
-        const limiteMB = 50; // Límite de 50 Megabytes
-        const maxBytes = limiteMB * 1024 * 1024;
-
-        if (file.size > maxBytes) {
-            // Si pesa más de 50MB, soltamos un error y cancelamos
-            alert(`⚠️ El video es muy pesado (Máx ${limiteMB}MB).\nIntenta con un video más corto.`);
-            realInput.value = ''; // Limpiamos
-            return; // Detenemos todo aquí
+        if (!file.type.startsWith('image/')) {
+            alert('⚠️ Para videos, por favor usa el botón "Subir Video" en la página principal.');
+            realInput.value = '';
+            return;
         }
-        // ---------------------------------
 
-           // 1. Preparamos UI
         uploadTriggerBtn.disabled = true;
         uploadTriggerBtn.style.opacity = "0.5";
-        statusContainer.classList.remove('hidden'); // Mostrar barra
+        statusContainer.classList.remove('hidden');
         progressBarFill.style.width = '0%';
         progressText.innerText = '0%';
 
-        // 2. Crear referencia y tarea de subida
         const fileName = `boda_laura_x/${Date.now()}_${file.name}`;
         const storageRef = ref(storage, fileName);
-        
-        // Usamos uploadBytesResumable en vez de uploadBytes
         const uploadTask = uploadBytesResumable(storageRef, file);
 
-        // 3. Escuchar cambios (Aquí ocurre la magia de la barra)
         uploadTask.on('state_changed', 
             (snapshot) => {
-                // Cálculo matemático del porcentaje
                 const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                
-                // Actualizar barra y texto
                 progressBarFill.style.width = progress + '%';
                 progressText.innerText = Math.round(progress) + '%';
             }, 
             (error) => {
-                // Si falla
                 console.error(error);
                 showToast("Error al subir :(");
                 uploadTriggerBtn.disabled = false;
@@ -266,19 +427,13 @@
                 statusContainer.classList.add('hidden');
             }, 
             async () => {
-                // Si termina con éxito (100%)
                 const url = await getDownloadURL(uploadTask.snapshot.ref);
-
-                // Guardar en base de datos
                 await addDoc(collection(db, "album"), {
                     url_imagen: url,
                     fecha: serverTimestamp(),
                     usuario: "invitado" 
                 });
-
                 showToast("¡Foto subida con éxito!");
-                
-                // Resetear UI
                 uploadTriggerBtn.disabled = false;
                 uploadTriggerBtn.style.opacity = "1";
                 statusContainer.classList.add('hidden');
@@ -288,7 +443,7 @@
         );
     });
 
-    // Leer fotos
+    // Leer fotos (Para mostrarlas en la sección Upload)
     const q = query(collection(db, "album"), orderBy("fecha", "desc"));
     onSnapshot(q, (snapshot) => {
         galleryContainer.innerHTML = '';
@@ -306,6 +461,91 @@
             }
         });
     });
+
+    // --- LÓGICA DEL ÁLBUM DIGITAL (PAGINACIÓN) ---
+    // Esta parte controla las animaciones de las páginas del libro
+    let currentAlbumPage = 1;
+    const totalAlbumPages = 12;
+    const albumPages = document.querySelectorAll(".album-page");
+    const albumNext = document.getElementById("album-next");
+    const albumPrev = document.getElementById("album-prev");
+    const currentPageDisplay = document.getElementById("current-page");
+
+    function updateAlbumPage(newPage) {
+      if (newPage < 1 || newPage > totalAlbumPages) return;
+
+      const oldPage = currentAlbumPage;
+      currentAlbumPage = newPage;
+
+      // Actualizar display numérico
+      if (currentPageDisplay) {
+        currentPageDisplay.textContent = currentAlbumPage;
+      }
+
+      // Transición de páginas (Animación)
+      albumPages.forEach((page, index) => {
+        const pageNum = index + 1;
+        
+        if (pageNum === oldPage) {
+          page.classList.remove("page-active");
+          page.classList.add("page-exit");
+          setTimeout(() => {
+            page.classList.add("hidden");
+            page.classList.remove("page-exit");
+          }, 600);
+        }
+        
+        if (pageNum === currentAlbumPage) {
+          page.classList.remove("hidden");
+          page.classList.add("page-enter");
+          setTimeout(() => {
+            page.classList.remove("page-enter");
+            page.classList.add("page-active");
+          }, 50);
+        }
+      });
+
+      // Mostrar/ocultar flechas según la página
+      if (albumPrev) {
+        if (currentAlbumPage === 1) {
+          albumPrev.classList.add("hidden");
+        } else {
+          albumPrev.classList.remove("hidden");
+        }
+      }
+
+      if (albumNext) {
+        if (currentAlbumPage === totalAlbumPages) {
+          albumNext.classList.add("hidden");
+        } else {
+          albumNext.classList.remove("hidden");
+        }
+      }
+    }
+
+    if (albumNext) {
+      albumNext.addEventListener("click", () => {
+        updateAlbumPage(currentAlbumPage + 1);
+      });
+    }
+
+    if (albumPrev) {
+      albumPrev.addEventListener("click", () => {
+        updateAlbumPage(currentAlbumPage - 1);
+      });
+    }
+
+    // Teclado (Flechas)
+    document.addEventListener("keydown", (e) => {
+      if (!pageAlbum || pageAlbum.classList.contains("hidden")) return;
+      
+      if (e.key === "ArrowRight") {
+        updateAlbumPage(currentAlbumPage + 1);
+      } else if (e.key === "ArrowLeft") {
+        updateAlbumPage(currentAlbumPage - 1);
+      }
+    });
+
   </script>
  </body>
 </html>
