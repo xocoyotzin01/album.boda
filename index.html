@@ -80,7 +80,7 @@
     }
     .delete-btn:hover { background: red; transform: scale(1.1); }
 
-    /* Animación música sonando */
+    /* Animación música */
     @keyframes pulse-music {
         0%, 100% { transform: scale(1); opacity: 1; }
         50% { transform: scale(1.1); opacity: 0.8; }
@@ -93,8 +93,9 @@
     /* CONTENEDOR OCULTO PARA GENERAR PDF */
     #pdf-generator-container {
         position: fixed; left: -9999px; top: 0;
-        width: 1123px; /* A4 Landscape width in px aprox at 96dpi */
+        width: 1123px; /* A4 Landscape width in px aprox */
         height: 794px; /* A4 Landscape height */
+        z-index: -1;
     }
     .pdf-page-render {
         width: 1123px !important;
@@ -103,7 +104,8 @@
         display: block !important;
         opacity: 1 !important;
         transform: none !important;
-        margin-bottom: 20px;
+        margin-bottom: 0px;
+        background-color: #f5f1ed; /* Fondo base para asegurar que no salga transparente */
     }
 
     html { scroll-behavior: smooth; }
@@ -150,7 +152,7 @@
         </button> 
         
         <button id="btn-go-album" type="button" class="w-full flex items-center justify-center gap-3 p-4 bg-white border border-[#c9a961] text-[#c9a961] rounded-lg shadow-sm hover:bg-gray-50 transition-all group cursor-pointer">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span class="font-sans-clean text-sm font-bold tracking-wide">VER ÁLBUM DIGITAL</span> 
         </button>
 
@@ -260,7 +262,6 @@
 
     <section id="page-album" class="hidden bg-[#ebe5df] w-full h-screen fixed top-0 left-0 z-50 flex flex-col">
         <div class="w-full h-16 flex items-center justify-between px-4 bg-white/60 backdrop-blur shadow-sm z-50 shrink-0">
-             
              <button id="btn-exit-album" class="flex items-center gap-2 px-3 py-1.5 bg-white rounded-full text-[#c9a961] shadow-sm font-sans-clean text-sm font-bold border border-gray-100">
                 <span>← Volver</span>
              </button>
@@ -269,7 +270,6 @@
                  <button id="btn-music-toggle" class="w-8 h-8 flex items-center justify-center rounded-full bg-white/80 text-gray-400 hover:text-[#c9a961] shadow-sm transition-all border border-gray-100" title="Activar/Desactivar Música">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
                  </button>
-
                  <div class="font-sans-clean text-xs text-gray-500">
                     <span id="current-page">1</span> / <span id="total-pages">--</span>
                  </div>
@@ -295,9 +295,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    // IMPORTANTE: deleteObject AHORA ESTÁ AQUÍ
     import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
-    // IMPORTANTE: getDoc AHORA ESTÁ AQUÍ
     import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, deleteDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     // --- CONFIGURACIÓN: FECHA DE DESBLOQUEO DEL PDF ---
@@ -431,7 +429,20 @@
            </div>`;
         appendPDFPage(pdfContainer, backCoverHTML);
 
-        await new Promise(r => setTimeout(r, 2000));
+        // --- FIX CRITICO: ESPERAR CARGA DE IMAGENES Y CORS ---
+        const images = pdfContainer.querySelectorAll('img');
+        const imagePromises = Array.from(images).map(img => {
+            img.crossOrigin = "anonymous"; // CLAVE PARA QUE NO SALGAN BLANCAS
+            if (img.complete) return Promise.resolve();
+            return new Promise(resolve => {
+                img.onload = resolve;
+                img.onerror = resolve; // Continuar aunque falle una
+            });
+        });
+        await Promise.all(imagePromises);
+        
+        // Pequeña espera extra para renderizado
+        await new Promise(r => setTimeout(r, 1000));
 
         const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
         const pages = pdfContainer.querySelectorAll('.pdf-page-render');
@@ -439,7 +450,10 @@
         for (let i = 0; i < pages.length; i++) {
             if (i > 0) pdf.addPage();
             const canvas = await html2canvas(pages[i], {
-                scale: 2, useCORS: true, logging: false
+                scale: 2, 
+                useCORS: true, 
+                allowTaint: true,
+                logging: false
             });
             const imgData = canvas.toDataURL('image/jpeg', 0.9);
             const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -471,7 +485,7 @@
     window.deletePhoto = async (id) => {
         if(confirm("⚠️ ¿Estás seguro de borrar este recuerdo para siempre? (Se liberará espacio)")) {
             try {
-                // 1. Obtener datos para saber el nombre del archivo
+                // 1. Obtener datos
                 const docRef = doc(db, "album", id);
                 const docSnap = await getDoc(docRef);
                 
@@ -479,7 +493,7 @@
                     const data = docSnap.data();
                     const fileUrl = data.url_imagen;
 
-                    // 2. Intentar borrar de Storage
+                    // 2. Borrar de Storage
                     try {
                         const fileRef = ref(storage, fileUrl);
                         await deleteObject(fileRef);
@@ -487,7 +501,7 @@
                         console.warn("No se pudo borrar archivo (quizás no existía):", storageError);
                     }
 
-                    // 3. Borrar de base de datos
+                    // 3. Borrar de DB
                     await deleteDoc(docRef);
                     showToast("Recuerdo eliminado totalmente 🗑️");
                 } else {
