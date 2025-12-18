@@ -2,7 +2,7 @@
 <html lang="es" class="h-full">
  <head>
   <meta charset="UTF-8">
-  <title>Album Laura + erick | Álbum Infinito</title>
+  <title>Boda Laura + X | Álbum Infinito</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <script src="https://cdn.tailwindcss.com"></script>
   
@@ -19,7 +19,7 @@
     /* Estilos para la foto de portada */
     .cover-image-container {
       position: relative; overflow: hidden;
-      background-color: #f0f0f0; /* Color de fondo mientras carga */
+      background-color: #f0f0f0; 
     }
     
     .upload-zone {
@@ -43,7 +43,8 @@
       position: relative;
       overflow: hidden;
     }
-    .album-photo img {
+    /* Soporte para imagenes y videos que cubran el espacio */
+    .album-photo img, .album-photo video {
         width: 100%; height: 100%; object-fit: cover;
     }
     
@@ -89,7 +90,6 @@
      
      <div class="w-full md:w-1/2 h-64 md:h-auto cover-image-container flex items-center justify-center">
         <img src="foto_principal.jpg" alt="Bienvenidos a nuestra boda" class="w-full h-full object-cover">
-        
         <div class="absolute inset-0 bg-black/10 pointer-events-none"></div>
      </div>
 
@@ -115,17 +115,77 @@
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span class="font-sans-clean text-sm font-bold tracking-wide">SUBIR FOTO</span> 
         </button> 
+        
         <button id="btn-go-album" type="button" class="w-full flex items-center justify-center gap-3 p-4 bg-white border border-[#c9a961] text-[#c9a961] rounded-lg shadow-sm hover:bg-gray-50 transition-all group cursor-pointer">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span class="font-sans-clean text-sm font-bold tracking-wide">VER ÁLBUM DIGITAL</span> 
         </button>
-        <a id="btn-video-link" href="https://drive.google.com/drive/folders/1SP3Qv_Q_sHLgWyTztKgth4USp2lv7qzm?usp=sharing" target="_blank" class="w-full flex items-center justify-center gap-3 p-4 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-all cursor-pointer no-underline">
+
+        <button id="btn-open-video-modal" type="button" class="w-full flex items-center justify-center gap-3 p-4 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-all cursor-pointer">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span class="font-sans-clean text-sm font-bold tracking-wide">SUBIR VIDEO (Drive)</span> 
-        </a>
+            <span class="font-sans-clean text-sm font-bold tracking-wide">SUBIR VIDEO</span> 
+        </button>
       </div>
      </div>
     </section>
+
+    <div id="video-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-xl w-full max-w-md overflow-hidden relative shadow-2xl">
+            <button id="close-video-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10 p-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+
+            <div class="p-8 text-center">
+                <h3 class="font-serif-elegant text-2xl text-[#c9a961] mb-2">¿Cómo quieres subir tu video?</h3>
+                <p class="font-sans-clean text-sm text-gray-500 mb-8 font-light">Elige la opción que prefieras</p>
+
+                <div class="grid grid-cols-1 gap-4">
+                    <div id="direct-video-trigger" class="cursor-pointer group relative border-2 border-dashed border-[#e8d7b8] hover:border-[#c9a961] hover:bg-[#faf8f6] rounded-xl p-6 transition-all">
+                        <div class="flex flex-col items-center gap-3">
+                            <div class="w-12 h-12 bg-[#c9a961] text-white rounded-full flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800 text-sm">Subir aquí directo</h4>
+                                <p class="text-xs text-gray-500 mt-1">Videos cortos (Max 100MB)</p>
+                            </div>
+                        </div>
+                        <input type="file" id="video-file-input" class="hidden" accept="video/mp4,video/mov,video/quicktime">
+                    </div>
+
+                    <div class="flex items-center gap-3 opacity-50">
+                        <div class="h-px bg-gray-300 flex-1"></div>
+                        <span class="text-xs text-gray-400 font-bold">O</span>
+                        <div class="h-px bg-gray-300 flex-1"></div>
+                    </div>
+
+                    <a href="https://drive.google.com/drive/folders/1SP3Qv_Q_sHLgWyTztKgth4USp2lv7qzm?usp=sharing" target="_blank" class="block border-2 border-transparent bg-gray-50 hover:bg-gray-100 rounded-xl p-6 transition-all no-underline">
+                        <div class="flex flex-col items-center gap-3">
+                            <div class="w-12 h-12 bg-white border border-gray-200 text-gray-600 rounded-full flex items-center justify-center shadow-sm">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800 text-sm">Subir a Google Drive</h4>
+                                <p class="text-xs text-gray-500 mt-1">Ideal para videos largos</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                
+                <div id="video-progress-container" class="hidden mt-6">
+                    <div class="flex justify-between mb-1">
+                      <span class="text-xs font-bold text-[#c9a961]">Subiendo video...</span>
+                      <span id="video-progress-text" class="text-xs font-bold text-[#c9a961]">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                      <div id="video-progress-bar" class="bg-[#c9a961] h-2 rounded-full transition-all duration-150" style="width: 0%"></div>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-2">Por favor no cierres esta ventana</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
 
     <section id="page-upload" class="hidden bg-white min-h-screen">
      <div class="max-w-7xl mx-auto px-6 py-16 md:py-20">
@@ -225,7 +285,7 @@
     let allPhotosData = []; 
     let currentAlbumPage = 1;
     let totalAlbumPages = 1;
-    let isAdminMode = false; // MODO ADMIN OFF POR DEFECTO
+    let isAdminMode = false;
 
     // DOM Elements
     const albumContainer = document.getElementById('album-container');
@@ -235,53 +295,46 @@
     const albumPrev = document.getElementById("album-prev");
     const firebaseGallery = document.getElementById('firebase-gallery');
 
-    // --- FUNCION BORRAR (EXPUESTA A WINDOW) ---
+    // --- FUNCION BORRAR (ADMIN) ---
     window.deletePhoto = async (id) => {
-        if(confirm("⚠️ ¿Estás seguro de borrar esta foto para siempre?")) {
+        if(confirm("⚠️ ¿Estás seguro de borrar este recuerdo para siempre?")) {
             try {
                 await deleteDoc(doc(db, "album", id));
-                showToast("Foto eliminada 🗑️");
+                showToast("Recuerdo eliminado 🗑️");
             } catch (e) {
                 alert("Error al borrar: " + e.message);
             }
         }
     }
 
-    // --- ACTIVADOR MODO ADMIN (INTERRUPTOR ON/OFF) ---
+    // --- ACTIVADOR MODO ADMIN ---
     const secretTrigger = document.getElementById('secret-admin-trigger');
     let clickCount = 0;
-    
     secretTrigger.addEventListener('click', () => {
         clickCount++;
         if(clickCount === 3) {
-            
             if (isAdminMode) {
-                // SI YA ES ADMIN -> APAGAR
                 isAdminMode = false;
                 alert("🔒 Modo Admin DESACTIVADO");
-                // Actualizar vistas para quitar los iconos de basura
                 updateUploadGrid(allPhotosData);
                 buildDynamicAlbum(allPhotosData);
             } else {
-                // SI NO ES ADMIN -> PRENDER
                 const pwd = prompt("🔒 Modo Admin: Ingresa la contraseña");
-                if(pwd === "boda2025") { // CAMBIA TU CONTRASEÑA DE SUPER USUARIO AQUI
+                if(pwd === "boda2025") { 
                     isAdminMode = true;
-                    alert("✅ Modo Admin ACTIVADO: Ahora verás iconos de basura para borrar fotos.");
+                    alert("✅ Modo Admin ACTIVADO");
                     updateUploadGrid(allPhotosData);
                     buildDynamicAlbum(allPhotosData);
                 } else if (pwd !== null) {
                     alert("❌ Contraseña incorrecta");
                 }
             }
-            
             clickCount = 0;
         }
-        // Reseteo de clicks si tarda mucho
         setTimeout(() => clickCount = 0, 2000);
     });
 
-    // --- ESCUCHAR FOTOS ---
+    // --- ESCUCHAR FOTOS Y VIDEOS ---
     const q = query(collection(db, "album"), orderBy("fecha", "desc"));
 
     onSnapshot(q, (snapshot) => {
@@ -292,7 +345,8 @@
                 allPhotosData.push({ 
                     id: doc.id, 
                     url: d.url_imagen,
-                    message: d.mensaje || "" 
+                    message: d.mensaje || "",
+                    type: d.type || 'image' // Detectamos si es video
                 });
             }
         });
@@ -367,16 +421,24 @@
         albumContainer.appendChild(div);
     }
 
-    // --- TEMPLATES + BOTÓN DELETE ---
-    function imgTag(imgObj) {
-        if(!imgObj) return '';
+    // --- TEMPLATES RESPONSIVOS + VIDEO SUPPORT ---
+    function imgTag(item) {
+        if(!item) return '';
         const deleteBtn = isAdminMode ? 
-            `<div class="delete-btn" onclick="window.deletePhoto('${imgObj.id}')">🗑️</div>` : '';
+            `<div class="delete-btn" onclick="window.deletePhoto('${item.id}')">🗑️</div>` : '';
+        
+        // AQUÍ ESTÁ LA MAGIA DEL VIDEO
+        let content;
+        if (item.type === 'video') {
+            content = `<video src="${item.url}" controls class="w-full h-full object-cover" preload="metadata"></video>`;
+        } else {
+            content = `<img src="${item.url}" class="w-full h-full object-cover">`;
+        }
         
         return `
             <div class="w-full h-full relative group">
                 ${deleteBtn}
-                <img src="${imgObj.url}" class="w-full h-full object-cover">
+                ${content}
             </div>
         `;
     }
@@ -418,10 +480,8 @@
                         </div>
                     </div>`;
         }
-        
         if(type === 'split') {
             const extraContent = i1.message ? getTextHTML(i1.message) : (i2 && i2.message ? getTextHTML(i2.message) : '<div class="hidden md:block"></div>');
-
             return `<div class="p-6 md:p-12 flex flex-col md:flex-row gap-4 md:gap-6 w-full h-full">
                       <div class="w-full md:w-2/3 h-1/2 md:h-full album-photo rounded-sm shadow-sm">${imgTag(i1)}</div>
                       <div class="w-full md:w-1/3 h-1/2 md:h-full flex flex-row md:flex-col gap-4 md:gap-6">
@@ -430,7 +490,6 @@
                       </div>
                     </div>`;
         }
-
         if(type === 'right') {
             const textSide = i1.message ? getTextHTML(i1.message) : '';
             return `<div class="p-6 md:p-12 flex flex-col-reverse md:flex-row items-center justify-center md:justify-end w-full h-full gap-6">
@@ -438,17 +497,14 @@
                       <div class="w-full md:w-3/5 h-4/5 album-photo rounded-sm shadow-sm">${imgTag(i1)}</div>
                     </div>`;
         }
-
         if(type === 'diagonal') {
              const msg1 = i1.message ? `<div class="absolute bottom-0 w-full p-2 bg-black/50 text-white text-xs text-center font-serif-elegant italic pointer-events-none">"${i1.message}"</div>` : '';
              const msg2 = i2 && i2.message ? `<div class="absolute bottom-0 w-full p-2 bg-black/50 text-white text-xs text-center font-serif-elegant italic pointer-events-none">"${i2.message}"</div>` : '';
-
             return `<div class="p-6 md:p-16 flex flex-col justify-between w-full h-full gap-4">
                       <div class="w-3/4 md:w-2/5 h-2/5 album-photo rounded-sm shadow-sm relative group">${imgTag(i1)}${msg1}</div>
                       <div class="w-3/4 md:w-2/5 h-2/5 album-photo rounded-sm self-end shadow-sm relative group">${imgTag(i2)}${msg2}</div>
                     </div>`;
         }
-
         if(type === 'bigsmall') {
             const textSpace = i1.message ? getTextHTML(i1.message) : '';
             return `<div class="p-4 md:p-10 flex flex-col md:flex-row gap-4 md:gap-8 items-end w-full h-full">
@@ -459,7 +515,6 @@
                       </div>
                     </div>`;
         }
-
         if(type === 'grid3') {
             return `<div class="p-6 md:p-12 grid grid-rows-3 md:grid-rows-1 grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 w-full h-full">
                       <div class="album-photo rounded-sm md:row-span-2 shadow-sm">${imgTag(i1)}</div>
@@ -528,14 +583,14 @@
         photos.forEach(item => {
             const div = document.createElement('div');
             div.className = "aspect-square rounded-lg shadow-sm overflow-hidden bg-gray-100 relative";
+            const deleteBtn = isAdminMode ? `<div class="delete-btn" onclick="window.deletePhoto('${item.id}')">🗑️</div>` : '';
             
-            const deleteBtn = isAdminMode ? 
-                `<div class="delete-btn" onclick="window.deletePhoto('${item.id}')">🗑️</div>` : '';
-            
-            div.innerHTML = `
-                ${deleteBtn}
-                <img src="${item.url}" class="w-full h-full object-cover" loading="lazy">
-            `;
+            // GRID MINIATURA: SI ES VIDEO, PONEMOS UN VIDEO PEQUEÑO
+            let content;
+            if(item.type === 'video') content = `<video src="${item.url}" class="w-full h-full object-cover"></video>`;
+            else content = `<img src="${item.url}" class="w-full h-full object-cover" loading="lazy">`;
+
+            div.innerHTML = `${deleteBtn}${content}`;
             firebaseGallery.appendChild(div);
         });
     }
@@ -549,11 +604,21 @@
     const btnBackHome = document.getElementById('btn-back-home');
     const btnExitAlbum = document.getElementById('btn-exit-album');
     
+    // Elementos MODAL DE VIDEO
+    const videoModal = document.getElementById('video-modal');
+    const btnOpenVideoModal = document.getElementById('btn-open-video-modal');
+    const btnCloseVideoModal = document.getElementById('close-video-modal');
+    const videoFileInput = document.getElementById('video-file-input');
+    const directVideoTrigger = document.getElementById('direct-video-trigger');
+    const videoProgressContainer = document.getElementById('video-progress-container');
+    const videoProgressBar = document.getElementById('video-progress-bar');
+    const videoProgressText = document.getElementById('video-progress-text');
+
+    // Elementos FOTO UPLOAD
     const realInput = document.getElementById('real-file-input');
     const uploadTriggerBtn = document.getElementById('btn-upload-trigger');
     const dropZone = document.getElementById('drop-zone-trigger');
     const messageInput = document.getElementById('upload-message'); 
-
     const statusContainer = document.getElementById('upload-status-container');
     const progressBarFill = document.getElementById('progress-bar-fill');
     const progressText = document.getElementById('progress-text');
@@ -565,11 +630,61 @@
         setTimeout(() => toast.classList.add('hidden'), 3000);
     }
 
+    // --- LOGICA MODAL VIDEO ---
+    btnOpenVideoModal.addEventListener('click', () => { videoModal.classList.remove('hidden'); });
+    btnCloseVideoModal.addEventListener('click', () => { videoModal.classList.add('hidden'); });
+    
+    // Click en la zona de "Subir directo"
+    directVideoTrigger.addEventListener('click', () => { videoFileInput.click(); });
+
+    // SUBIDA DE VIDEO DIRECTA
+    videoFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        // Validar tamaño (Max 100MB para no matar la cuota gratis)
+        if (file.size > 100 * 1024 * 1024) {
+            alert("⚠️ El video es muy pesado (Max 100MB). Por favor usa la opción de Google Drive.");
+            videoFileInput.value = '';
+            return;
+        }
+
+        videoProgressContainer.classList.remove('hidden');
+        const fileName = `videos/${Date.now()}_${file.name}`;
+        const storageRef = ref(storage, fileName);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
+        uploadTask.on('state_changed', 
+            (snapshot) => {
+                const p = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                videoProgressBar.style.width = p + '%';
+                videoProgressText.innerText = Math.round(p) + '%';
+            }, 
+            (error) => { console.error(error); alert("Error al subir video"); }, 
+            async () => {
+                const url = await getDownloadURL(uploadTask.snapshot.ref);
+                await addDoc(collection(db, "album"), { 
+                    url_imagen: url, 
+                    type: 'video', // MARCA IMPORTANTE: ES UN VIDEO
+                    fecha: serverTimestamp() 
+                });
+                showToast("¡Video subido con éxito!");
+                videoProgressContainer.classList.add('hidden');
+                videoModal.classList.add('hidden');
+                videoFileInput.value = '';
+                videoProgressBar.style.width = '0%';
+            }
+        );
+    });
+
+
+    // --- NAVEGACIÓN GENERAL ---
     btnGoUpload.addEventListener('click', () => { pageHome.classList.add('hidden'); pageUpload.classList.remove('hidden'); pageAlbum.classList.add('hidden'); window.scrollTo(0,0); });
     btnGoAlbum.addEventListener('click', () => { pageHome.classList.add('hidden'); pageUpload.classList.add('hidden'); pageAlbum.classList.remove('hidden'); currentAlbumPage = 1; updatePageVisibility(); window.scrollTo(0,0); });
     btnBackHome.addEventListener('click', () => { pageUpload.classList.add('hidden'); pageHome.classList.remove('hidden'); });
     btnExitAlbum.addEventListener('click', () => { pageAlbum.classList.add('hidden'); pageHome.classList.remove('hidden'); });
 
+    // SUBIDA DE FOTOS
     uploadTriggerBtn.addEventListener('click', () => realInput.click());
     dropZone.addEventListener('click', () => realInput.click());
 
@@ -595,13 +710,12 @@
             (error) => { console.error(error); }, 
             async () => {
                 const url = await getDownloadURL(uploadTask.snapshot.ref);
-                
                 await addDoc(collection(db, "album"), { 
                     url_imagen: url, 
                     mensaje: messageInput.value || "", 
+                    type: 'image',
                     fecha: serverTimestamp() 
                 });
-
                 showToast("¡Foto subida!");
                 uploadTriggerBtn.disabled = false;
                 statusContainer.classList.add('hidden');
