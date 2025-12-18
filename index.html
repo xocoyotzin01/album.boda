@@ -80,13 +80,22 @@
     }
     .delete-btn:hover { background: red; transform: scale(1.1); }
 
+    /* Animación música sonando */
+    @keyframes pulse-music {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: 0.8; }
+    }
+    .music-playing svg {
+        animation: pulse-music 2s infinite ease-in-out;
+        color: #c9a961;
+    }
+
     /* CONTENEDOR OCULTO PARA GENERAR PDF */
     #pdf-generator-container {
         position: fixed; left: -9999px; top: 0;
         width: 1123px; /* A4 Landscape width in px aprox at 96dpi */
         height: 794px; /* A4 Landscape height */
     }
-    /* Clase forzada para las páginas del PDF */
     .pdf-page-render {
         width: 1123px !important;
         height: 794px !important;
@@ -104,6 +113,11 @@
  <body class="h-full w-full font-sans-clean bg-white text-gray-800">
   <div id="app-root" class="app-wrapper overflow-auto flex flex-col">
    
+   <audio id="bg-music" loop>
+       <source src="cancion.mp3" type="audio/mp3">
+       <source src="cancion.ogg" type="audio/ogg">
+   </audio>
+
    <main class="flex-1 h-full">
     
     <section id="page-home" class="bg-white min-h-screen flex flex-col md:flex-row">
@@ -246,12 +260,20 @@
     </section>
 
     <section id="page-album" class="hidden bg-[#ebe5df] w-full h-screen fixed top-0 left-0 z-50 flex flex-col">
-        <div class="w-full h-16 flex items-center px-4 bg-white/60 backdrop-blur shadow-sm z-50 shrink-0">
+        <div class="w-full h-16 flex items-center justify-between px-4 bg-white/60 backdrop-blur shadow-sm z-50 shrink-0">
+             
              <button id="btn-exit-album" class="flex items-center gap-2 px-3 py-1.5 bg-white rounded-full text-[#c9a961] shadow-sm font-sans-clean text-sm font-bold border border-gray-100">
                 <span>← Volver</span>
              </button>
-             <div class="ml-auto font-sans-clean text-xs text-gray-500">
-                <span id="current-page">1</span> / <span id="total-pages">--</span>
+
+             <div class="flex items-center gap-3">
+                 <button id="btn-music-toggle" class="w-8 h-8 flex items-center justify-center rounded-full bg-white/80 text-gray-400 hover:text-[#c9a961] shadow-sm transition-all border border-gray-100" title="Activar/Desactivar Música">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                 </button>
+
+                 <div class="font-sans-clean text-xs text-gray-500">
+                    <span id="current-page">1</span> / <span id="total-pages">--</span>
+                 </div>
              </div>
         </div>
 
@@ -278,7 +300,6 @@
     import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     // --- CONFIGURACIÓN: FECHA DE DESBLOQUEO DEL PDF ---
-    // EJEMPLO: 27 de Diciembre 2025 a las 00:00 (12 AM)
     const FECHA_DESBLOQUEO = new Date("2025-12-27T00:00:00"); 
 
     // --- CONFIGURACIÓN FIREBASE ---
@@ -309,18 +330,45 @@
     const albumPrev = document.getElementById("album-prev");
     const firebaseGallery = document.getElementById('firebase-gallery');
     const btnDownloadPDF = document.getElementById('btn-download-pdf');
+    
+    // MUSICA ELEMENTOS
+    const bgMusic = document.getElementById('bg-music');
+    const btnMusic = document.getElementById('btn-music-toggle');
+    let isMusicPlaying = false;
+
+    // --- LÓGICA DE MÚSICA ---
+    function updateMusicIcon() {
+        if (isMusicPlaying) {
+            btnMusic.classList.add('music-playing');
+            btnMusic.classList.remove('text-gray-400');
+            btnMusic.classList.add('text-[#c9a961]');
+        } else {
+            btnMusic.classList.remove('music-playing');
+            btnMusic.classList.add('text-gray-400');
+            btnMusic.classList.remove('text-[#c9a961]');
+        }
+    }
+
+    btnMusic.addEventListener('click', () => {
+        if (bgMusic.paused) {
+            bgMusic.play();
+            isMusicPlaying = true;
+        } else {
+            bgMusic.pause();
+            isMusicPlaying = false;
+        }
+        updateMusicIcon();
+    });
 
     // --- CHECK DE VISIBILIDAD PDF ---
     function checkPDFButtonVisibility() {
         const now = new Date();
-        // Muestra si la fecha pasó O si es admin
         if (now >= FECHA_DESBLOQUEO || isAdminMode) {
             btnDownloadPDF.classList.remove('hidden');
         } else {
             btnDownloadPDF.classList.add('hidden');
         }
     }
-    // Ejecutar al inicio y cada minuto
     checkPDFButtonVisibility();
     setInterval(checkPDFButtonVisibility, 60000);
 
@@ -335,16 +383,10 @@
     });
 
     async function generatePDF() {
-        // 1. Filtrar solo imágenes (no videos)
         const onlyPhotos = allPhotosData.filter(item => item.type !== 'video');
-        
-        // 2. Crear contenedor temporal para renderizar
         const pdfContainer = document.getElementById('pdf-generator-container');
-        pdfContainer.innerHTML = ''; // Limpiar
+        pdfContainer.innerHTML = ''; 
 
-        // 3. Reconstruir álbum estático en el contenedor oculto
-        // Usamos la misma lógica de buildDynamicAlbum pero inyectando todo a la vez
-        
         // Portada
         const coverHTML = `
            <div class="flex flex-col items-center justify-center p-12 text-center h-full bg-[#f5f1ed]">
@@ -381,7 +423,6 @@
             }
         }
 
-        // Contraportada
         const backCoverHTML = `
            <div class="flex flex-col items-center justify-center p-16 text-center h-full bg-[#f5f1ed]">
             <h2 class="font-serif-elegant text-5xl text-[#c9a961] font-light mb-8">• FELICES POR SIEMPRE •</h2>
@@ -389,42 +430,33 @@
            </div>`;
         appendPDFPage(pdfContainer, backCoverHTML);
 
-        // 4. Esperar a que carguen las imagenes del DOM oculto
-        await new Promise(r => setTimeout(r, 2000)); // Espera de seguridad
+        await new Promise(r => setTimeout(r, 2000));
 
-        // 5. Generar PDF
         const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
         const pages = pdfContainer.querySelectorAll('.pdf-page-render');
         
         for (let i = 0; i < pages.length; i++) {
             if (i > 0) pdf.addPage();
-            
             const canvas = await html2canvas(pages[i], {
-                scale: 2, // Mejor calidad
-                useCORS: true, // Permitir imagenes de firebase
-                logging: false
+                scale: 2, useCORS: true, logging: false
             });
-            
             const imgData = canvas.toDataURL('image/jpeg', 0.9);
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = pdf.internal.pageSize.getHeight();
-            
             pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
         }
 
         pdf.save("Album_Boda_Laura_X.pdf");
         showToast("¡PDF Descargado con éxito! ✅");
-        pdfContainer.innerHTML = ''; // Limpiar memoria
+        pdfContainer.innerHTML = ''; 
     }
 
     function appendPDFPage(container, htmlContent) {
         const div = document.createElement('div');
-        div.className = 'pdf-page-render'; // Clase con estilos fijos
+        div.className = 'pdf-page-render'; 
         div.innerHTML = htmlContent;
-        // Quitar botones de borrar si se copiaron
         const btns = div.querySelectorAll('.delete-btn');
         btns.forEach(b => b.remove());
-        // Forzar estilos de fondo que a veces se pierden
         const innerPage = div.querySelector('.album-page');
         if(innerPage) {
             innerPage.style.position = 'absolute';
@@ -455,7 +487,6 @@
             if (isAdminMode) {
                 isAdminMode = false;
                 alert("🔒 Modo Admin DESACTIVADO");
-                // Actualizar vistas
                 checkPDFButtonVisibility();
                 updateUploadGrid(allPhotosData);
                 buildDynamicAlbum(allPhotosData);
@@ -464,7 +495,6 @@
                 if(pwd === "boda2025") { 
                     isAdminMode = true;
                     alert("✅ Modo Admin ACTIVADO");
-                    // Actualizar vistas
                     checkPDFButtonVisibility();
                     updateUploadGrid(allPhotosData);
                     buildDynamicAlbum(allPhotosData);
@@ -662,75 +692,6 @@
         return '';
     }
 
-    // --- CONTROLES Y UTILIDADES ---
-    function updatePageVisibility() {
-        const pages = document.querySelectorAll('.album-page');
-        pages.forEach((page) => {
-            const num = parseInt(page.dataset.page);
-            if (num === currentAlbumPage) {
-                page.classList.remove('hidden', 'page-exit', 'page-enter');
-                page.classList.add('page-active');
-            } else {
-                page.classList.add('hidden');
-                page.classList.remove('page-active');
-            }
-        });
-        currentPageDisplay.textContent = currentAlbumPage;
-        albumPrev.classList.toggle('hidden', currentAlbumPage <= 1);
-        albumNext.classList.toggle('hidden', currentAlbumPage >= totalAlbumPages);
-    }
-
-    albumNext.addEventListener('click', () => {
-        if(currentAlbumPage < totalAlbumPages) {
-            const cur = document.querySelector(`.album-page[data-page="${currentAlbumPage}"]`);
-            cur.classList.remove('page-active');
-            cur.classList.add('page-exit');
-            currentAlbumPage++;
-            const next = document.querySelector(`.album-page[data-page="${currentAlbumPage}"]`);
-            next.classList.remove('hidden');
-            next.classList.add('page-enter');
-            setTimeout(() => {
-                cur.classList.add('hidden');
-                next.classList.remove('page-enter');
-                next.classList.add('page-active');
-                updatePageVisibility();
-            }, 600);
-        }
-    });
-
-    albumPrev.addEventListener('click', () => {
-        if(currentAlbumPage > 1) {
-            currentAlbumPage--;
-            updatePageVisibility();
-        }
-    });
-    
-    document.addEventListener("keydown", (e) => {
-      if (!pageAlbum || pageAlbum.classList.contains("hidden")) return;
-      if (e.key === "ArrowRight") { if(currentAlbumPage < totalAlbumPages) albumNext.click(); } 
-      else if (e.key === "ArrowLeft") { if(currentAlbumPage > 1) albumPrev.click(); }
-    });
-
-    function updateUploadGrid(photos) {
-        firebaseGallery.innerHTML = '';
-        if(photos.length === 0) {
-            firebaseGallery.innerHTML = '<div class="col-span-full text-center text-gray-400">Cargando...</div>';
-            return;
-        }
-        photos.forEach(item => {
-            const div = document.createElement('div');
-            div.className = "aspect-square rounded-lg shadow-sm overflow-hidden bg-gray-100 relative";
-            const deleteBtn = isAdminMode ? `<div class="delete-btn" onclick="window.deletePhoto('${item.id}')">🗑️</div>` : '';
-            
-            let content;
-            if(item.type === 'video') content = `<video src="${item.url}" class="w-full h-full object-cover"></video>`;
-            else content = `<img src="${item.url}" class="w-full h-full object-cover" loading="lazy">`;
-
-            div.innerHTML = `${deleteBtn}${content}`;
-            firebaseGallery.appendChild(div);
-        });
-    }
-
     // --- NAVEGACIÓN ---
     const pageHome = document.getElementById('page-home');
     const pageUpload = document.getElementById('page-upload');
@@ -819,9 +780,36 @@
 
     // --- NAVEGACIÓN GENERAL ---
     btnGoUpload.addEventListener('click', () => { pageHome.classList.add('hidden'); pageUpload.classList.remove('hidden'); pageAlbum.classList.add('hidden'); window.scrollTo(0,0); });
-    btnGoAlbum.addEventListener('click', () => { pageHome.classList.add('hidden'); pageUpload.classList.add('hidden'); pageAlbum.classList.remove('hidden'); currentAlbumPage = 1; updatePageVisibility(); window.scrollTo(0,0); });
+    
+    // AL ENTRAR AL ALBUM, INICIAMOS MUSICA
+    btnGoAlbum.addEventListener('click', () => { 
+        pageHome.classList.add('hidden'); 
+        pageUpload.classList.add('hidden'); 
+        pageAlbum.classList.remove('hidden'); 
+        currentAlbumPage = 1; 
+        updatePageVisibility(); 
+        window.scrollTo(0,0); 
+        
+        // MUSICA START
+        bgMusic.currentTime = 0;
+        bgMusic.play().then(() => {
+            isMusicPlaying = true;
+            updateMusicIcon();
+        }).catch(e => console.log("Autoplay bloqueado hasta interacción", e));
+    });
+
+    // AL SALIR DEL ALBUM, PAUSAMOS MUSICA
+    btnExitAlbum.addEventListener('click', () => { 
+        pageAlbum.classList.add('hidden'); 
+        pageHome.classList.remove('hidden'); 
+        
+        // MUSICA STOP
+        bgMusic.pause();
+        isMusicPlaying = false;
+        updateMusicIcon();
+    });
+
     btnBackHome.addEventListener('click', () => { pageUpload.classList.add('hidden'); pageHome.classList.remove('hidden'); });
-    btnExitAlbum.addEventListener('click', () => { pageAlbum.classList.add('hidden'); pageHome.classList.remove('hidden'); });
 
     uploadTriggerBtn.addEventListener('click', () => realInput.click());
     dropZone.addEventListener('click', () => realInput.click());
