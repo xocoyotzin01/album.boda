@@ -2,7 +2,7 @@
 <html lang="es" class="h-full">
  <head>
   <meta charset="UTF-8">
-  <title> Nuestra Boda Laura & Xocoyotzin | Álbum Infinito</title>
+  <title>Nuestra Boda Laura & Xocoyotzin | Álbum Infinito</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <script src="https://cdn.tailwindcss.com"></script>
   
@@ -93,7 +93,7 @@
     /* CONTENEDOR OCULTO PARA GENERAR PDF */
     #pdf-generator-container {
         position: fixed; left: -9999px; top: 0;
-        width: 1123px; /* A4 Landscape width in px aprox */
+        width: 1123px; /* A4 Landscape width */
         height: 794px; /* A4 Landscape height */
         z-index: -1;
     }
@@ -378,7 +378,7 @@
 
     btnDownloadPDF.addEventListener('click', async () => {
         if(confirm("¿Quieres descargar el álbum como PDF? (Esto puede tardar unos segundos)")) {
-            showToast("Generando PDF, por favor espera... 📚");
+            showToast("Iniciando generación de PDF... 0%");
             await generatePDF();
         }
     });
@@ -392,7 +392,7 @@
         const coverHTML = `
            <div class="flex flex-col items-center justify-center p-12 text-center h-full bg-[#f5f1ed]">
             <h2 class="font-serif-elegant text-7xl text-[#c9a961] font-light mb-6 tracking-wide">una mirada,<br>mil recuerdos.</h2>
-            <p class="font-sans-clean text-lg tracking-widest text-gray-500 uppercase"> Nuestra Boda Laura & Xocoyotzin</p>
+            <p class="font-sans-clean text-lg tracking-widest text-gray-500 uppercase">Nuestra Boda Laura & Xocoyotzin</p>
             <div class="decorative-line mt-12">Nuestros recuerdos . Nuestros recuerdos . Nuestros recuerdos</div>
            </div>`;
         appendPDFPage(pdfContainer, coverHTML);
@@ -447,8 +447,14 @@
 
         const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
         const pages = pdfContainer.querySelectorAll('.pdf-page-render');
+        const toast = document.getElementById('toast');
         
         for (let i = 0; i < pages.length; i++) {
+            // MOSTRAR PORCENTAJE DE PROGRESO
+            const percent = Math.round(((i + 1) / pages.length) * 100);
+            toast.innerText = `Generando PDF: ${percent}%`;
+            toast.classList.remove('hidden');
+
             if (i > 0) pdf.addPage();
             // FIX: allowTaint FALSE, useCORS TRUE
             const canvas = await html2canvas(pages[i], {
@@ -464,7 +470,7 @@
         }
 
         pdf.save("Album_Boda_Laura_X.pdf");
-        showToast("¡PDF Descargado con éxito! ✅");
+        showToast("¡PDF Descargado con éxito! ✅"); // Este toast se ocultará solo
         pdfContainer.innerHTML = ''; 
     }
 
@@ -572,7 +578,7 @@
         addPageHTML(`
            <div class="flex flex-col items-center justify-center p-6 md:p-12 text-center h-full">
             <h2 class="font-serif-elegant text-5xl md:text-7xl text-[#c9a961] font-light mb-6 tracking-wide">una mirada,<br>mil recuerdos.</h2>
-            <p class="font-sans-clean text-sm tracking-widest text-gray-500 uppercase">Boda Laura & X</p>
+            <p class="font-sans-clean text-sm tracking-widest text-gray-500 uppercase">Nuestra Boda Laura & Xocoyotzin</p>
             <div class="decorative-line mt-12">Nuestros recuerdos . Nuestros recuerdos . Nuestros recuerdos</div>
            </div>
         `, 1);
@@ -730,37 +736,185 @@
         return '';
     }
 
-    // --- NAVEGACIÓN GENERAL (CON AUTOPLAY MUSIC) ---
-    btnGoUpload.addEventListener('click', () => { pageHome.classList.add('hidden'); pageUpload.classList.remove('hidden'); pageAlbum.classList.add('hidden'); window.scrollTo(0,0); });
-    
-    // AL ENTRAR AL ALBUM
-    btnGoAlbum.addEventListener('click', () => { 
-        // 1. Play música inmediatamente (User gesture)
-        bgMusic.play().then(() => {
-            isMusicPlaying = true;
-            updateMusicIcon();
-        }).catch(e => {
-            console.log("Autoplay bloqueado:", e);
-            isMusicPlaying = false;
-            updateMusicIcon();
+    // --- CONTROLES Y UTILIDADES ---
+    function updatePageVisibility() {
+        const pages = document.querySelectorAll('.album-page');
+        pages.forEach((page) => {
+            const num = parseInt(page.dataset.page);
+            if (num === currentAlbumPage) {
+                page.classList.remove('hidden', 'page-exit', 'page-enter');
+                page.classList.add('page-active');
+            } else {
+                page.classList.add('hidden');
+                page.classList.remove('page-active');
+            }
         });
+        currentPageDisplay.textContent = currentAlbumPage;
+        albumPrev.classList.toggle('hidden', currentAlbumPage <= 1);
+        albumNext.classList.toggle('hidden', currentAlbumPage >= totalAlbumPages);
+    }
 
+    albumNext.addEventListener('click', () => {
+        if(currentAlbumPage < totalAlbumPages) {
+            const cur = document.querySelector(`.album-page[data-page="${currentAlbumPage}"]`);
+            cur.classList.remove('page-active');
+            cur.classList.add('page-exit');
+            currentAlbumPage++;
+            const next = document.querySelector(`.album-page[data-page="${currentAlbumPage}"]`);
+            next.classList.remove('hidden');
+            next.classList.add('page-enter');
+            setTimeout(() => {
+                cur.classList.add('hidden');
+                next.classList.remove('page-enter');
+                next.classList.add('page-active');
+                updatePageVisibility();
+            }, 600);
+        }
+    });
+
+    albumPrev.addEventListener('click', () => {
+        if(currentAlbumPage > 1) {
+            currentAlbumPage--;
+            updatePageVisibility();
+        }
+    });
+    
+    document.addEventListener("keydown", (e) => {
+      if (!pageAlbum || pageAlbum.classList.contains("hidden")) return;
+      if (e.key === "ArrowRight") { if(currentAlbumPage < totalAlbumPages) albumNext.click(); } 
+      else if (e.key === "ArrowLeft") { if(currentAlbumPage > 1) albumPrev.click(); }
+    });
+
+    function updateUploadGrid(photos) {
+        firebaseGallery.innerHTML = '';
+        if(photos.length === 0) {
+            firebaseGallery.innerHTML = '<div class="col-span-full text-center text-gray-400">Cargando...</div>';
+            return;
+        }
+        photos.forEach(item => {
+            const div = document.createElement('div');
+            div.className = "aspect-square rounded-lg shadow-sm overflow-hidden bg-gray-100 relative";
+            const deleteBtn = isAdminMode ? `<div class="delete-btn" onclick="window.deletePhoto('${item.id}')">🗑️</div>` : '';
+            let content;
+            if(item.type === 'video') content = `<video src="${item.url}" class="w-full h-full object-cover"></video>`;
+            else content = `<img src="${item.url}" class="w-full h-full object-cover" loading="lazy">`;
+            div.innerHTML = `${deleteBtn}${content}`;
+            firebaseGallery.appendChild(div);
+        });
+    }
+
+    // --- NAVEGACIÓN ---
+    const pageHome = document.getElementById('page-home');
+    const pageUpload = document.getElementById('page-upload');
+    const pageAlbum = document.getElementById('page-album');
+    const btnGoUpload = document.getElementById('btn-go-upload');
+    const btnGoAlbum = document.getElementById('btn-go-album');
+    const btnBackHome = document.getElementById('btn-back-home');
+    const btnExitAlbum = document.getElementById('btn-exit-album');
+    
+    // MODAL VIDEO
+    const videoModal = document.getElementById('video-modal');
+    const btnOpenVideoModal = document.getElementById('btn-open-video-modal');
+    const btnCloseVideoModal = document.getElementById('close-video-modal');
+    const videoFileInput = document.getElementById('video-file-input');
+    const directVideoTrigger = document.getElementById('direct-video-trigger');
+    const videoProgressContainer = document.getElementById('video-progress-container');
+    const videoProgressBar = document.getElementById('video-progress-bar');
+    const videoProgressText = document.getElementById('video-progress-text');
+
+    // FOTO UPLOAD
+    const realInput = document.getElementById('real-file-input');
+    const uploadTriggerBtn = document.getElementById('btn-upload-trigger');
+    const dropZone = document.getElementById('drop-zone-trigger');
+    const messageInput = document.getElementById('upload-message'); 
+    const statusContainer = document.getElementById('upload-status-container');
+    const progressBarFill = document.getElementById('progress-bar-fill');
+    const progressText = document.getElementById('progress-text');
+    const toast = document.getElementById('toast');
+
+    function showToast(msg) {
+        toast.textContent = msg;
+        toast.classList.remove('hidden');
+        // No ocultamos automáticamente si es un mensaje de progreso
+        if (!msg.includes("Generando PDF:")) {
+            setTimeout(() => toast.classList.add('hidden'), 3000);
+        }
+    }
+
+    // --- LOGICA MODAL VIDEO ---
+    btnOpenVideoModal.addEventListener('click', () => { videoModal.classList.remove('hidden'); });
+    btnCloseVideoModal.addEventListener('click', () => { videoModal.classList.add('hidden'); });
+    
+    directVideoTrigger.addEventListener('click', () => { videoFileInput.click(); });
+    directVideoTrigger.addEventListener('dragover', (e) => { e.preventDefault(); directVideoTrigger.classList.add('drag-active'); });
+    directVideoTrigger.addEventListener('dragleave', (e) => { e.preventDefault(); directVideoTrigger.classList.remove('drag-active'); });
+    directVideoTrigger.addEventListener('drop', (e) => {
+        e.preventDefault();
+        directVideoTrigger.classList.remove('drag-active');
+        if (e.dataTransfer.files.length) {
+            videoFileInput.files = e.dataTransfer.files;
+            const event = new Event('change');
+            videoFileInput.dispatchEvent(event);
+        }
+    });
+
+    videoFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const limiteMB = 30; 
+        const maxBytes = limiteMB * 1024 * 1024;
+        if (file.size > maxBytes) {
+            const irADrive = confirm(`⚠️ Ese video es muy pesado para el álbum en vivo (${(file.size/1024/1024).toFixed(1)}MB).\n\nEl límite es ${limiteMB}MB.\n\n¿Quieres subirlo a la carpeta de Google Drive mejor?`);
+            if (irADrive) window.open("https://drive.google.com/drive/folders/1SP3Qv_Q_sHLgWyTztKgth4USp2lv7qzm?usp=sharing", "_blank");
+            videoFileInput.value = '';
+            return;
+        }
+        videoProgressContainer.classList.remove('hidden');
+        const fileName = `videos/${Date.now()}_${file.name}`;
+        const storageRef = ref(storage, fileName);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+        uploadTask.on('state_changed', 
+            (snapshot) => {
+                const p = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                videoProgressBar.style.width = p + '%';
+                videoProgressText.innerText = Math.round(p) + '%';
+            }, 
+            (error) => { console.error(error); alert("Error al subir video"); }, 
+            async () => {
+                const url = await getDownloadURL(uploadTask.snapshot.ref);
+                await addDoc(collection(db, "album"), { url_imagen: url, type: 'video', fecha: serverTimestamp() });
+                showToast("¡Video subido con éxito!");
+                videoProgressContainer.classList.add('hidden');
+                videoModal.classList.add('hidden');
+                videoFileInput.value = '';
+                videoProgressBar.style.width = '0%';
+            }
+        );
+    });
+
+    // --- NAVEGACIÓN GENERAL ---
+    btnGoUpload.addEventListener('click', () => { pageHome.classList.add('hidden'); pageUpload.classList.remove('hidden'); pageAlbum.classList.add('hidden'); window.scrollTo(0,0); });
+    btnGoAlbum.addEventListener('click', () => { 
         pageHome.classList.add('hidden'); 
         pageUpload.classList.add('hidden'); 
         pageAlbum.classList.remove('hidden'); 
         currentAlbumPage = 1; 
         updatePageVisibility(); 
         window.scrollTo(0,0); 
+        
+        // MUSICA START
+        bgMusic.currentTime = 0;
+        bgMusic.play().then(() => {
+            isMusicPlaying = true;
+            updateMusicIcon();
+        }).catch(e => console.log("Autoplay bloqueado hasta interacción", e));
     });
 
-    // AL SALIR DEL ALBUM
     btnExitAlbum.addEventListener('click', () => { 
-        // 1. Stop música
+        // MUSICA STOP
         bgMusic.pause();
-        bgMusic.currentTime = 0; // Reiniciar
         isMusicPlaying = false;
         updateMusicIcon();
-
         pageAlbum.classList.add('hidden'); 
         pageHome.classList.remove('hidden'); 
     });
