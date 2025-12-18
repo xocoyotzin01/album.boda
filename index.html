@@ -26,6 +26,7 @@
       border: 2px dashed #e8d7b8; transition: all 0.3s ease;
     }
     .upload-zone:hover { border-color: #c9a961; background-color: #faf8f6; }
+    .upload-zone.drag-active { border-color: #c9a961; background-color: #fdf6e7; transform: scale(1.02); }
 
     /* --- ESTILOS ÁLBUM --- */
     .album-page {
@@ -130,49 +131,37 @@
     </section>
 
     <div id="video-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-xl w-full max-w-md overflow-hidden relative shadow-2xl">
+        <div class="bg-white rounded-xl w-full max-w-2xl overflow-hidden relative shadow-2xl">
             <button id="close-video-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10 p-2">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
 
-            <div class="p-8 text-center">
-                <h3 class="font-serif-elegant text-2xl text-[#c9a961] mb-2">¿Cómo quieres subir tu video?</h3>
-                <p class="font-sans-clean text-sm text-gray-500 mb-8 font-light">Elige la opción que prefieras</p>
+            <div class="p-8">
+                <h3 class="font-serif-elegant text-2xl text-[#c9a961] mb-6 text-center">Selecciona una opción</h3>
 
-                <div class="grid grid-cols-1 gap-4">
-                    <div id="direct-video-trigger" class="cursor-pointer group relative border-2 border-dashed border-[#e8d7b8] hover:border-[#c9a961] hover:bg-[#faf8f6] rounded-xl p-6 transition-all">
-                        <div class="flex flex-col items-center gap-3">
-                            <div class="w-12 h-12 bg-[#c9a961] text-white rounded-full flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-gray-800 text-sm">Subir aquí directo</h4>
-                                <p class="text-xs text-gray-500 mt-1">Videos cortos (Max 100MB)</p>
-                            </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <div id="direct-video-trigger" class="upload-zone cursor-pointer group relative border-2 border-dashed border-[#e8d7b8] rounded-xl p-8 flex flex-col items-center justify-center text-center transition-all h-64 md:h-auto">
+                        <div class="w-14 h-14 bg-[#c9a961] text-white rounded-full flex items-center justify-center shadow-md mb-4 group-hover:scale-110 transition-transform pointer-events-none">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                         </div>
+                        <h4 class="font-bold text-gray-800 text-lg pointer-events-none">Álbum en Vivo</h4>
+                        <p class="text-sm text-gray-500 mt-2 pointer-events-none">Toca o arrastra aquí tu video corto.</p>
+                        <p class="text-xs text-[#c9a961] mt-1 font-medium pointer-events-none">(Max 30MB)</p>
                         <input type="file" id="video-file-input" class="hidden" accept="video/mp4,video/mov,video/quicktime">
                     </div>
 
-                    <div class="flex items-center gap-3 opacity-50">
-                        <div class="h-px bg-gray-300 flex-1"></div>
-                        <span class="text-xs text-gray-400 font-bold">O</span>
-                        <div class="h-px bg-gray-300 flex-1"></div>
-                    </div>
-
-                    <a href="https://drive.google.com/drive/folders/1SP3Qv_Q_sHLgWyTztKgth4USp2lv7qzm?usp=sharing" target="_blank" class="block border-2 border-transparent bg-gray-50 hover:bg-gray-100 rounded-xl p-6 transition-all no-underline">
-                        <div class="flex flex-col items-center gap-3">
-                            <div class="w-12 h-12 bg-white border border-gray-200 text-gray-600 rounded-full flex items-center justify-center shadow-sm">
-                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-gray-800 text-sm">Subir a Google Drive</h4>
-                                <p class="text-xs text-gray-500 mt-1">Ideal para videos largos</p>
-                            </div>
+                    <a href="https://drive.google.com/drive/folders/1SP3Qv_Q_sHLgWyTztKgth4USp2lv7qzm?usp=sharing" target="_blank" class="block border-2 border-gray-100 bg-gray-50 hover:bg-gray-100 hover:border-gray-200 rounded-xl p-8 flex flex-col items-center justify-center text-center transition-all no-underline h-64 md:h-auto">
+                        <div class="w-14 h-14 bg-white border border-gray-200 text-gray-600 rounded-full flex items-center justify-center shadow-sm mb-4">
+                            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg>
                         </div>
+                        <h4 class="font-bold text-gray-800 text-lg">Google Drive</h4>
+                        <p class="text-sm text-gray-500 mt-2">Para videos largos o pesados.</p>
+                        <p class="text-xs text-blue-500 mt-1 font-medium">Ir a la carpeta →</p>
                     </a>
                 </div>
                 
-                <div id="video-progress-container" class="hidden mt-6">
+                <div id="video-progress-container" class="hidden mt-8 max-w-sm mx-auto">
                     <div class="flex justify-between mb-1">
                       <span class="text-xs font-bold text-[#c9a961]">Subiendo video...</span>
                       <span id="video-progress-text" class="text-xs font-bold text-[#c9a961]">0%</span>
@@ -180,7 +169,7 @@
                     <div class="w-full bg-gray-200 rounded-full h-2">
                       <div id="video-progress-bar" class="bg-[#c9a961] h-2 rounded-full transition-all duration-150" style="width: 0%"></div>
                     </div>
-                    <p class="text-[10px] text-gray-400 mt-2">Por favor no cierres esta ventana</p>
+                    <p class="text-[10px] text-gray-400 mt-2 text-center">Por favor no cierres esta ventana</p>
                 </div>
 
             </div>
@@ -427,7 +416,6 @@
         const deleteBtn = isAdminMode ? 
             `<div class="delete-btn" onclick="window.deletePhoto('${item.id}')">🗑️</div>` : '';
         
-        // AQUÍ ESTÁ LA MAGIA DEL VIDEO
         let content;
         if (item.type === 'video') {
             content = `<video src="${item.url}" controls class="w-full h-full object-cover" preload="metadata"></video>`;
@@ -585,7 +573,6 @@
             div.className = "aspect-square rounded-lg shadow-sm overflow-hidden bg-gray-100 relative";
             const deleteBtn = isAdminMode ? `<div class="delete-btn" onclick="window.deletePhoto('${item.id}')">🗑️</div>` : '';
             
-            // GRID MINIATURA: SI ES VIDEO, PONEMOS UN VIDEO PEQUEÑO
             let content;
             if(item.type === 'video') content = `<video src="${item.url}" class="w-full h-full object-cover"></video>`;
             else content = `<img src="${item.url}" class="w-full h-full object-cover" loading="lazy">`;
@@ -634,31 +621,45 @@
     btnOpenVideoModal.addEventListener('click', () => { videoModal.classList.remove('hidden'); });
     btnCloseVideoModal.addEventListener('click', () => { videoModal.classList.add('hidden'); });
     
-    // Click en la zona de "Subir directo"
+    // CLICK PARA SUBIR VIDEO
     directVideoTrigger.addEventListener('click', () => { videoFileInput.click(); });
 
-// SUBIDA DE VIDEO DIRECTA
+    // DRAG AND DROP (ARRASTRAR Y SOLTAR) - NUEVO
+    directVideoTrigger.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        directVideoTrigger.classList.add('drag-active');
+    });
+    directVideoTrigger.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        directVideoTrigger.classList.remove('drag-active');
+    });
+    directVideoTrigger.addEventListener('drop', (e) => {
+        e.preventDefault();
+        directVideoTrigger.classList.remove('drag-active');
+        if (e.dataTransfer.files.length) {
+            videoFileInput.files = e.dataTransfer.files;
+            // Disparar el evento change manualmente
+            const event = new Event('change');
+            videoFileInput.dispatchEvent(event);
+        }
+    });
+
+    // SUBIDA DE VIDEO DIRECTA
     videoFileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
         
-        // --- AQUÍ ESTÁ EL CAMBIO: LÍMITE DE 30 MB ---
         const limiteMB = 30; 
         const maxBytes = limiteMB * 1024 * 1024;
 
         if (file.size > maxBytes) {
-            // Si pesa más de 20MB, le sugerimos ir a Drive
             const irADrive = confirm(`⚠️ Ese video es muy pesado para el álbum en vivo (${(file.size/1024/1024).toFixed(1)}MB).\n\nEl límite es ${limiteMB}MB.\n\n¿Quieres subirlo a la carpeta de Google Drive mejor?`);
-            
             if (irADrive) {
-                // Abrimos el link de drive automáticamente
                 window.open("https://drive.google.com/drive/folders/1SP3Qv_Q_sHLgWyTztKgth4USp2lv7qzm?usp=sharing", "_blank");
             }
-            
-            videoFileInput.value = ''; // Limpiamos la selección
+            videoFileInput.value = '';
             return;
         }
-        // ----------------------------------------------
 
         videoProgressContainer.classList.remove('hidden');
         const fileName = `videos/${Date.now()}_${file.name}`;
