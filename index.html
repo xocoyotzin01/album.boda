@@ -2,7 +2,7 @@
 <html lang="es" class="h-full">
  <head>
   <meta charset="UTF-8">
-  <title>Boda Laura + X | Álbum Infinito</title>
+  <title>Boda Laura & Xocoyotzin | Álbum Infinito</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <script src="https://cdn.tailwindcss.com"></script>
   
@@ -301,7 +301,7 @@
     import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, deleteDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     // --- CONFIGURACIÓN: FECHA DE DESBLOQUEO DEL PDF ---
-    const FECHA_DESBLOQUEO = new Date("2025-12-27T00:00:00"); 
+    const FECHA_DESBLOQUEO = new Date("2025-12-28T00:00:00"); 
 
     // --- CONFIGURACIÓN FIREBASE ---
     const firebaseConfig = {
@@ -392,7 +392,7 @@
         const coverHTML = `
            <div class="flex flex-col items-center justify-center p-12 text-center h-full bg-[#f5f1ed]">
             <h2 class="font-serif-elegant text-7xl text-[#c9a961] font-light mb-6 tracking-wide">una mirada,<br>mil recuerdos.</h2>
-            <p class="font-sans-clean text-lg tracking-widest text-gray-500 uppercase">Boda Laura & X</p>
+            <p class="font-sans-clean text-lg tracking-widest text-gray-500 uppercase">Nuestra Boda Laura & Xocoyotzin</p>
             <div class="decorative-line mt-12">Siempre cerca . Siempre cerca . Siempre cerca</div>
            </div>`;
         appendPDFPage(pdfContainer, coverHTML);
@@ -462,7 +462,7 @@
             pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
         }
 
-        pdf.save("Album_Boda_Laura_X.pdf");
+        pdf.save("Album_Laura_&_Xocoyotzin.pdf");
         showToast("¡PDF Descargado con éxito! ✅");
         pdfContainer.innerHTML = ''; 
     }
